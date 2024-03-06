@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from django.core.mail import EmailMessage
+from feedback_app.tasks import send_email
 
 
 # Create your views here.
@@ -9,13 +9,7 @@ def feedback(request):
         data = request.POST
         email = data["email"]
         message = data["message"]
-        mail_subject = "Thanks for the feedback"
-        mail_message = "Thanks for the feedback"
-        email_obj = EmailMessage(mail_subject, mail_message, to=[email])
-        if email_obj.send():
-            print("Success: Email sent successfully")
-        else:
-            print("Failure: Email lost its way :(")
+        send_email.delay(email)
         return redirect("thankyou")
     return render(request, "feedback_app/feedback.html")
 
